@@ -1,0 +1,6 @@
+
+ubuntu 18.04
+mosquitto 1.5.3
+mosquitto-auth-plug 0.1.3
+
+untuk mysql client jangan menggunakan versi 8 keatas

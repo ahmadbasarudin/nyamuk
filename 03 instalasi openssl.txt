@@ -1,0 +1,64 @@
+https://www.emqx.io/blog/emqx-server-ssl-tls-secure-connection-configuration-guide
+
+
+
+cd /home/basar/mqtt/openssl
+
+openssl genrsa -out my_root_ca.key 2048
+openssl req -x509 -new -nodes -key my_root_ca.key -sha256 -days 3650 -out my_root_ca.pem
+openssl genrsa -out emqx.key 2048
+
+vi openssl.cfg
+	BROKER_ADDRESS ganti dengan 127.0.0.1
+	[req]
+	default_bits  = 2048
+	distinguished_name = req_distinguished_name
+	req_extensions = req_ext
+	x509_extensions = v3_req
+	prompt = no
+	[req_distinguished_name]
+	countryName = CN
+	stateOrProvinceName = Zhejiang
+	localityName = Hangzhou
+	organizationName = EMQX
+	commonName = Server certificate
+	[req_ext]
+	subjectAltName = @alt_names
+	[v3_req]
+	subjectAltName = @alt_names
+	[alt_names]
+	IP.1 = BROKER_ADDRESS
+	DNS.1 = BROKER_ADDRESS
+
+openssl req -new -key ./emqx.key -config openssl.cnf -out emqx.csropenssl x509 -req -in ./emqx.csr -CA my_root_ca.pem -CAkey my_root_ca.key -CAcreateserial -out emqx.pem -days 3650 -sha256
+sudo cp emqx.pem  emqx.key my_root_ca.pem  /etc/mosquitto/cert
+
+
+vi /etc/mosquitto/mosquitto.ssl.conf
+	persistence true
+	persistence_location /var/lib/mosquitto/
+
+	listener 1883
+	protocol mqtt
+
+	listener 8883
+	cafile /etc/mosquitto/cert/my_root_ca.pem
+	certfile /etc/mosquitto/cert/emqx.pem
+	keyfile /etc/mosquitto/cert/emqx.key
+	#require_certificate true
+	tls_version tlsv1.2
+
+
+mosquitto -c /etc/mosquitto/mosquitto.ssl.conf  -v
+	1598162580: mosquitto version 1.5.5 starting
+	1598162580: Config loaded from /etc/mosquitto/mosquitto.ssl.conf.
+	1598162580: Opening ipv4 listen socket on port 1883.
+	1598162580: Opening ipv6 listen socket on port 1883.
+	1598162580: Opening ipv4 listen socket on port 8883.
+	1598162580: Opening ipv6 listen socket on port 8883.
+	
+mosquitto_sub --cafile /etc/mosquitto/cert/my_root_ca.pem   -t "#" -p 8883 -d  --insecure
+
+
+
+

@@ -1,0 +1,17 @@
+instalasi mosquitto
+cd /home/basar/mqtt
+wget -c https://mosquitto.org/files/source/mosquitto-1.5.5.tar.gz
+tar -xzvf mosquitto-1.5.5.tar.gz
+cd mosquitto-1.5.5
+
+vi config.mk
+	edit WITH_WEBSOCKET=no diganti WITH_WEBSOCKET=yes
+
+sudo apt-get install libc-ares-dev libcurl4-openssl-dev libmysqlclient-dev make
+sudo apt install build-essential uuid-dev
+sudo apt install libc-ares-dev libcurl4-openssl-dev libmysqlclient-dev
+sudo apt install mysql-client
+sudo apt-get install -y libwebsockets-dev
+
+make
+sudo make install

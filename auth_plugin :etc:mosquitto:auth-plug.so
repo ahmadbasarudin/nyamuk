@@ -1,0 +1,45 @@
+auth_plugin /etc/mosquitto/auth-plug.so
+auth_opt_backends mysql
+auth_opt_host 192.168.43.156
+auth_opt_port 3306
+auth_opt_dbname mosquitto
+auth_opt_user basar
+auth_opt_pass basar
+
+auth_opt_userquery SELECT pw FROM users WHERE username = '%s'
+auth_opt_superquery SELECT IFNULL(COUNT(*), 0) FROM users WHERE username = '%s' AND super = 1
+auth_opt_aclquery SELECT topic FROM acls WHERE username = '%s'
+
+auth_opt_superusers S*
+#auth_opt_anonusername AnonymouS
+allow_anonymous false
+
+
+persistence true
+persistence_location /var/lib/mosquitto/
+
+listener 1883
+protocol mqtt
+
+listener 8883
+auth_opt_ssl_enabled true
+cafile /etc/mosquitto/cert/my_root_ca.pem
+certfile /etc/mosquitto/cert/emqx.pem
+keyfile /etc/mosquitto/cert/emqx.key
+require_certificate true
+tls_version tlsv1.2
+
+
+
+listener 9001
+protocol websockets
+
+
+listener 9002
+protocol websockets
+cafile /etc/mosquitto/cert/my_root_ca.pem
+certfile /etc/mosquitto/cert/emqx.pem
+keyfile /etc/mosquitto/cert/emqx.key
+#require_certificate true
+tls_version tlsv1.2
+                      

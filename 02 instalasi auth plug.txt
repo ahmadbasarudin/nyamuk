@@ -1,0 +1,30 @@
+cd /home/basar/mqtt
+git clone https://github.com/jpmens/mosquitto-auth-plug.git
+cd mosquitto-auth-plug
+cp config.mk.in config.mk
+
+make
+mv auth-plug.so /etc/mosquitto/
+
+vi /etc/mosquitto/mosquitto.auth.conf
+	auth_plugin /etc/mosquitto/auth-plug.so
+	auth_opt_backends mysql
+	auth_opt_host 192.168.43.156
+	auth_opt_port 3306
+	auth_opt_dbname mosquitto
+	auth_opt_user basar
+	auth_opt_pass basar
+	auth_opt_userquery SELECT pw FROM users WHERE username = '%s'
+	auth_opt_superquery SELECT IFNULL(COUNT(*), 0) FROM users WHERE username = '%s' AND super = 1
+	auth_opt_aclquery SELECT topic FROM acls WHERE username = '%s'
+	auth_opt_superusers S*
+	allow_anonymous false
+
+mosquitto -c /etc/mosquitto/mosquitto.auth.ssl.conf
+	1598161576: mosquitto version 1.5.5 starting
+	1598161576: Config loaded from /etc/mosquitto/mosquitto.auth.ssl.conf.
+	1598161576: |-- *** auth-plug: startup
+	1598161576: |-- ** Configured order: mysql
+
+	1598161576: |-- }}}} MYSQL
+	1598161576: |-- SSL is disabled
