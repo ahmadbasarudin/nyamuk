@@ -1,6 +1,6 @@
 config openssl + auth
 
-vi /etc/mosquitto/mosquitto.auth.ssl.conf 
+sudo vi /etc/mosquitto/mosquitto.auth.ssl.conf 
 	auth_plugin /etc/mosquitto/auth-plug.so
 	auth_opt_backends mysql
 	auth_opt_host 192.168.43.156

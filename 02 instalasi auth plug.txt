@@ -3,10 +3,26 @@ git clone https://github.com/jpmens/mosquitto-auth-plug.git
 cd mosquitto-auth-plug
 cp config.mk.in config.mk
 
-make
-mv auth-plug.so /etc/mosquitto/
+vi config.mk
+	BACKEND_MYSQL ?= yes
+	MOSQUITTO_SRC = /home/basar/mqtt/mosquitto-1.5.5
+	OPENSSLDIR = /usr/bin
+	CFG_LDFLAGS =-L/usr/local/lib
+	CFG_CFLAGS =-I/usr/local/include
 
-vi /etc/mosquitto/mosquitto.auth.conf
+
+
+make
+sudo mv auth-plug.so /etc/mosquitto/
+
+ldd /etc/mosquitto/auth-plug.so
+ldd /usr/local/sbin/mosquitto
+pastikan tidak ada not found
+
+jika ada yang notfound maka lib nya di link
+	sudo ln -s /usr/local/lib/libmosquitto.so.1 /usr/lib/libmosquitto.so.1
+
+sudo vi /etc/mosquitto/mosquitto.auth.conf
 	auth_plugin /etc/mosquitto/auth-plug.so
 	auth_opt_backends mysql
 	auth_opt_host 192.168.43.156
@@ -20,7 +36,7 @@ vi /etc/mosquitto/mosquitto.auth.conf
 	auth_opt_superusers S*
 	allow_anonymous false
 
-mosquitto -c /etc/mosquitto/mosquitto.auth.ssl.conf
+mosquitto -c /etc/mosquitto/mosquitto.auth.conf
 	1598161576: mosquitto version 1.5.5 starting
 	1598161576: Config loaded from /etc/mosquitto/mosquitto.auth.ssl.conf.
 	1598161576: |-- *** auth-plug: startup

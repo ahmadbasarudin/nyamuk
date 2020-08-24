@@ -8,33 +8,38 @@ openssl genrsa -out my_root_ca.key 2048
 openssl req -x509 -new -nodes -key my_root_ca.key -sha256 -days 3650 -out my_root_ca.pem
 openssl genrsa -out emqx.key 2048
 
-vi openssl.cfg
+vi openssl.cnf
 	BROKER_ADDRESS ganti dengan 127.0.0.1
-	[req]
-	default_bits  = 2048
-	distinguished_name = req_distinguished_name
-	req_extensions = req_ext
-	x509_extensions = v3_req
-	prompt = no
-	[req_distinguished_name]
-	countryName = CN
-	stateOrProvinceName = Zhejiang
-	localityName = Hangzhou
-	organizationName = EMQX
-	commonName = Server certificate
-	[req_ext]
-	subjectAltName = @alt_names
-	[v3_req]
-	subjectAltName = @alt_names
-	[alt_names]
-	IP.1 = BROKER_ADDRESS
-	DNS.1 = BROKER_ADDRESS
+[req]
+default_bits  = 2048
+distinguished_name = req_distinguished_name
+req_extensions = req_ext
+x509_extensions = v3_req
+prompt = no
+[req_distinguished_name]
+countryName = CN
+stateOrProvinceName = Zhejiang
+localityName = Hangzhou
+organizationName = EMQX
+commonName = Server certificate
+[req_ext]
+subjectAltName = @alt_names
+[v3_req]
+subjectAltName = @alt_names
+[alt_names]
+IP.1 = BROKER_ADDRESS
+DNS.1 = BROKER_ADDRESS
 
-openssl req -new -key ./emqx.key -config openssl.cnf -out emqx.csropenssl x509 -req -in ./emqx.csr -CA my_root_ca.pem -CAkey my_root_ca.key -CAcreateserial -out emqx.pem -days 3650 -sha256
+openssl req -new -key ./emqx.key -config openssl.cnf -out emqx.csr
+openssl x509 -req -in ./emqx.csr -CA my_root_ca.pem -CAkey my_root_ca.key -CAcreateserial -out emqx.pem -days 3650 -sha256
+
+sudo mkdir /etc/mosquitto/cert
 sudo cp emqx.pem  emqx.key my_root_ca.pem  /etc/mosquitto/cert
+sudo chmod 777 /etc/mosquitto/cert/*
 
 
-vi /etc/mosquitto/mosquitto.ssl.conf
+
+sudo vi /etc/mosquitto/mosquitto.ssl.conf
 	persistence true
 	persistence_location /var/lib/mosquitto/
 
